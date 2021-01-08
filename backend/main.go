@@ -48,6 +48,17 @@ type Certificate struct {
 	CertificateName string
 }
 
+type Medicals struct {
+	Medical []Medical
+}
+
+type Medical struct {
+	MedicalName  string
+	MedicalEmail  string
+	MedicalPassword  string
+	MedicalTel  string
+}
+
 // @title SUT SA Example API Playlist Vidoe
 // @version 1.0
 // @description This is a sample server for SUT SE 2563
@@ -85,7 +96,7 @@ type Certificate struct {
 func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
-	client, err := ent.Open("sqlite3", "file:ent.db?cache=shared&_fk=1")
+	client, err := ent.Open("sqlite3", "file:person.db?cache=shared&_fk=1")
 	if err != nil {
 		log.Fatalf("fail to open sqlite3: %v", err)
 	}
@@ -98,6 +109,7 @@ func main() {
 	controllers.NewSchemeTypeController(v1, client)
 	controllers.NewFundController(v1, client)
 	controllers.NewCertificateController(v1, client)
+	controllers.NewMedicalController(v1, client)
 	controllers.NewCoveredPersonController(v1, client)
 	// Set Patients Data
 	patients := Patients{
@@ -159,6 +171,23 @@ func main() {
 		client.Certificate.
 			Create().
 			SetCertificateName(ce.CertificateName).
+			Save(context.Background())
+	}
+	// Set Medicals Data
+	medicals := Medicals{
+		Medical: []Medical{
+			Medical{"สมศรี ภาคภูมิ","somsee@hotmai.com","123","0989987653" },
+			Medical{"มีใจ มะมี","mejai@hotmai.com","123","0897563456" },
+			Medical{"ถังแก๊ส เดินได้","tuggas@hotmai.com","123","0893456324" },
+		},
+	}
+	for _, mm := range medicals.Medical {
+		client.Medical.
+			Create().
+			SetMedicalName(mm.MedicalName).
+			SetMedicalEmail(mm.MedicalEmail).
+			SetMedicalPassword(mm.MedicalPassword).
+			SetMedicalTel(mm.MedicalTel).
 			Save(context.Background())
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
